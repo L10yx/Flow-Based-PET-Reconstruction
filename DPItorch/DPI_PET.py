@@ -5,11 +5,11 @@ DPI_PET.py  – Deep Probabilistic Imaging on PET (single-scan training)
 
 运行示例:
 python DPI_PET.py \
-  --activity_path  /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat \
-  --sinogram_path  /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat \
-  --gmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/G_system_matrix.mat \
-  --rmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/r_noise_map.mat \
-  --save_dir       /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/DPItorch/checkpoint/pet \
+  --activity_path  /gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat \
+  --sinogram_path  /gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat \
+  --gmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/G_system_matrix.mat \
+  --rmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/r_noise_map.mat \
+  --save_dir       /gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/DPItorch/checkpoint/pet \
   --model_form     realnvp
 """
 
@@ -81,11 +81,11 @@ class ImgLogScale(nn.Module):
 
 # ---------- CLI ----------
 parser = argparse.ArgumentParser("Deep Probabilistic Imaging Trainer for PET")
-parser.add_argument("--activity_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat")
-parser.add_argument("--sinogram_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat")
-parser.add_argument("--gmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/G_system_matrix.mat", help="MAT file with G_sparse")
-parser.add_argument("--rmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/r_noise_map.mat", help="MAT file with ri")
-parser.add_argument("--save_dir",      default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/DPItorch/checkpoint/pet")
+parser.add_argument("--activity_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat")
+parser.add_argument("--sinogram_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat")
+parser.add_argument("--gmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/G_system_matrix.mat", help="MAT file with G_sparse")
+parser.add_argument("--rmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/dataset/r_noise_map.mat", help="MAT file with ri")
+parser.add_argument("--save_dir",      default=r"/gpfsdata/home/Zhaobo_yuxuan/work/FlowPET/DPItorch/checkpoint/pet")
 
 parser.add_argument("--frame_idx", type=int, default=10, help="time frame index")
 parser.add_argument("--roi_idx",   type=int, default=30, help="slice/ROI index")
