@@ -5,11 +5,11 @@ DPI_PET.py  – Deep Probabilistic Imaging on PET (single-scan training)
 
 运行示例:
 python DPI_PET.py \
-  --activity_path  ..\dataset\brain128_tumor_activity_map\brain128_tumor_FDG_K1_40min.mat \
-  --sinogram_path  ..\dataset\brain128_tumor_sinogram\brain128_tumor_FDG_K1_40min.mat \
-  --gmat_path      ..\dataset\G_system_matrix.mat \
-  --rmat_path      ..\dataset\r_noise_map.mat \
-  --save_dir       .\checkpoint\pet \
+  --activity_path  /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat \
+  --sinogram_path  /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat \
+  --gmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/G_system_matrix.mat \
+  --rmat_path      /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/r_noise_map.mat \
+  --save_dir       /gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/DPItorch/checkpoint/pet \
   --model_form     realnvp
 """
 
@@ -81,18 +81,18 @@ class ImgLogScale(nn.Module):
 
 # ---------- CLI ----------
 parser = argparse.ArgumentParser("Deep Probabilistic Imaging Trainer for PET")
-parser.add_argument("--activity_path", default=r"..\dataset\brain128_tumor_activity_map\brain128_tumor_FDG_K1_40min.mat")
-parser.add_argument("--sinogram_path", default=r"..\dataset\brain128_tumor_sinogram\brain128_tumor_FDG_K1_40min.mat")
-parser.add_argument("--gmat_path",     default=r"..\dataset\G_system_matrix.mat", help="MAT file with G_sparse")
-parser.add_argument("--rmat_path",     default=r"..\dataset\r_noise_map.mat", help="MAT file with ri")
-parser.add_argument("--save_dir",      default=r".\checkpoint\pet")
+parser.add_argument("--activity_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_activity_map/brain128_tumor_FDG_K1_40min.mat")
+parser.add_argument("--sinogram_path", default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/brain128_tumor_sinogram/brain128_tumor_FDG_K1_40min.mat")
+parser.add_argument("--gmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/G_system_matrix.mat", help="MAT file with G_sparse")
+parser.add_argument("--rmat_path",     default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/dataset/r_noise_map.mat", help="MAT file with ri")
+parser.add_argument("--save_dir",      default=r"/gpfsdata/home/Zhaobo_yuxuan/work/Flow-based-PET-Reconstruction/DPItorch/checkpoint/pet")
 
 parser.add_argument("--frame_idx", type=int, default=10, help="time frame index")
 parser.add_argument("--roi_idx",   type=int, default=30, help="slice/ROI index")
 
 # Flow model
 parser.add_argument("--model_form", choices=["realnvp", "glow"], default="realnvp")
-parser.add_argument("--n_flow",    type=int, default=16)
+parser.add_argument("--n_flow",    type=int, default=8)
 parser.add_argument("--n_block",   type=int, default=4)  # for Glow
 parser.add_argument("--latent_dim",type=int, default=128)
 
@@ -245,6 +245,17 @@ for epoch in trange(args.n_epoch, desc="Training Epoch"):
               f"[Time] 100 iters in {elapsed:.2f}s")
         tick = time.time()
 
+    if epoch % 1000 == 0:  # 每1000个epoch保存一次
+        checkpoint_path = f"{args.save_dir}/checkpoint_nflow{args.n_flow}_nbatch{args.n_batch}_epoch{epoch}.pth"
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': Gnet.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'logscale_state_dict': logscale.state_dict(),
+            'loss': loss_rec
+        }, checkpoint_path)
+        print(f"✔ Checkpoint saved to {checkpoint_path}")
+
 # try:
 #     # ---------- 7. 采样 & 保存结果 ----------
 #     with torch.no_grad():
@@ -267,12 +278,12 @@ for epoch in trange(args.n_epoch, desc="Training Epoch"):
 #
 # finally:
 # ---------- 8. 保存模型 ----------
-torch.save(Gnet.state_dict(),
-           f"{args.save_dir}/generativemodel_{args.model_form}.pth")
-torch.save(logscale.state_dict(),
-           f"{args.save_dir}/logscale_{args.model_form}.pth")
-# np.save( f"{args.save_dir}/sample_image.npy", x_np)
-# print("✔ Final sampled PET image shape:", x_np.shape, "| dtype:", x_np.dtype)
+checkpoint_path_final = f"{args.save_dir}/finalmodel_nflow{args.n_flow}_nbatch{args.n_batch}_epoch{args.n_epoch}.pth"
+torch.save({
+    'model_state_dict': Gnet.state_dict(),
+    'logscale_state_dict': logscale.state_dict()
+}, checkpoint_path_final)
+print(f"✔ Final model saved to {checkpoint_path_final}")
 
 np.save(os.path.join(args.save_dir, "loss_curve.npy"), loss_rec)
 print("✔ Loss curve saved to", os.path.join(args.save_dir, "loss_curve.npy"))
